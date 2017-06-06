@@ -1,0 +1,14 @@
+# Splunk App: http://localhost:8000/
+
+version: '2'
+services:
+  splunk:
+    hostname: splunk
+    image: splunk/splunk:6.6.0
+    environment:
+      SPLUNK_START_ARGS: --accept-license
+    volumes:
+      - ./multiselect-drilldown:/opt/splunk/etc/apps/multiselect-drilldown
+    ports:
+      - "8000:8000"
+      - "8088:8088"

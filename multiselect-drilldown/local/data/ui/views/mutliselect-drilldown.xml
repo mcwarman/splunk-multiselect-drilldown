@@ -1,0 +1,53 @@
+<form>
+  <label>Multiselect Drilldown</label>
+  <fieldset submitButton="false">
+    <input type="time" token="dt" searchWhenChanged="true">
+      <label></label>
+      <default>
+        <earliest>@d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="multiselect" token="sourcetypes" depends="$dt.earliest$,$dt.latest$" searchWhenChanged="true">
+      <label>Source Type</label>
+      <choice value="*">Show All</choice>
+      <default>Show All</default>
+      <search>
+        <query>index=_internal | stats count by sourcetype</query>
+        <earliest>$dt.earliest$</earliest>
+        <latest>$dt.latest$</latest>
+      </search>
+      <fieldForLabel>sourcetype</fieldForLabel>
+      <fieldForValue>sourcetype</fieldForValue>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+      <valuePrefix>sourcetype=</valuePrefix>
+      <delimiter> OR </delimiter>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Source Types</title>
+      <table>
+        <search>
+          <query>
+            <![CDATA[index="_internal" | search $sourcetypes$ | eval _querystring=replace(replace(ltrim(rtrim("$sourcetypes$",")"),"("),"sourcetype=","form.sourcetypes=")," OR ","&") | stats count by sourcetype, _querystring]]>
+          </query>
+          <earliest>$dt.earliest$</earliest>
+          <latest>$dt.latest$</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+        <fields>["sourcetype","count"]</fields>
+        <drilldown>
+          <link>
+            <![CDATA[mutliselect-drilldown?form.dt.earliest=$earliest$&form.dt.latest=$latest$&$row._querystring|n$]]>
+          </link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+</form>
